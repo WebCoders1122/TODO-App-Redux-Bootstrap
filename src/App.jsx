@@ -1,31 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 //bootstrap
 import { ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
+//local storage library
+import localforage from "localforage";
+import { useEffect } from "react";
 
 function App() {
   //total task array
-  const [tasks, setTasks] = useState([
-    { task: "sample", complete: true },
-    { task: "sample 2", complete: false },
-  ]);
+  const [tasks, setTasks] = useState([{ task: "", complete: false }]);
   //new task
   const [newTask, setNewTask] = useState({ task: "", complete: false });
+
+  //to store and get tasks from local storage
+  useEffect(() => {
+    localforage.getItem("tasks-112#13ds3", (err, tasks) => {
+      tasks ? setTasks(tasks) : console.log(err);
+    });
+  }, []);
+
+  const storeTasks = (Tasks) => {
+    setTasks(Tasks);
+    localforage.setItem("tasks-112#13ds3", Tasks, (err) => {
+      console.log(err);
+    });
+  };
 
   //function to add, delete, update newTask to "task array"
   const addTask = (task) => {
     if (task.task == "") return alert("Please Enter a Task");
     const newTasks = [...tasks];
     newTasks.push(task);
-    setTasks(newTasks);
+    storeTasks(newTasks);
     setNewTask({ task: "", complete: false });
   };
   const deleteTask = (index) => {
     const newTasks = [...tasks];
     newTasks.splice(index, 1);
-    setTasks(newTasks);
+    storeTasks(newTasks);
   };
   const updateTask = (index) => {
     const newTasks = [...tasks];
@@ -33,7 +46,7 @@ function App() {
       task: newTasks[index].task,
       complete: !newTasks[index].complete,
     });
-    setTasks(newTasks);
+    storeTasks(newTasks);
   };
   return (
     <div className='App m-2'>
