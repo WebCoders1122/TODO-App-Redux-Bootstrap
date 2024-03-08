@@ -4,27 +4,29 @@ import "./App.css";
 import { ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 //local storage library
-import localforage from "localforage";
+// import localforage from "localforage";
 import { useEffect } from "react";
+
+//firestore imports
+import { useFirebase } from "./context/Firebase.jsx";
 
 function App() {
   //total task array
-  const [tasks, setTasks] = useState([{ task: "", complete: false }]);
+  const [tasks, setTasks] = useState([]);
   //new task
   const [newTask, setNewTask] = useState({ task: "", complete: false });
 
+  //firebase veriables
+  const firebase = useFirebase();
+
   //to store and get tasks from local storage
   useEffect(() => {
-    localforage.getItem("tasks-112#13ds3", (err, tasks) => {
-      tasks ? setTasks(tasks) : console.log(err);
-    });
-  }, []);
+    firebase.getTasksFromFirebase().then((res) => setTasks(res.data().tasks));
+  }, [firebase]);
 
   const storeTasks = (Tasks) => {
     setTasks(Tasks);
-    localforage.setItem("tasks-112#13ds3", Tasks, (err) => {
-      console.log(err);
-    });
+    firebase.storeTasksToFirebase(Tasks);
   };
 
   //function to add, delete, update newTask to "task array"
