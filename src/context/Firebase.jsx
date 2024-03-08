@@ -5,11 +5,15 @@ import { getAnalytics } from "firebase/analytics";
 //firebase storage
 import {
   doc,
-  addDoc,
   collection,
   getFirestore,
   setDoc,
-  getDoc,
+  getDocs,
+  orderBy,
+  limit,
+  query,
+  where,
+  deleteDoc,
 } from "firebase/firestore";
 
 // firebase configuration
@@ -33,17 +37,28 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 export const FirebaseProvider = ({ children }) => {
-  const storeTasksToFirebase = async (tasks) => {
-    const docRef = doc(db, "tasks", "sampleArray");
-    const response = await setDoc(docRef, { tasks: tasks });
+  const storeTasksToFirebase = async (task) => {
+    const docRef = doc(collection(db, "tasks"));
+    const newTask = { ...task, id: docRef.id, time: new Date() };
+    return await setDoc(docRef, newTask);
   };
+
   const getTasksFromFirebase = async () => {
-    const docRef = doc(db, "tasks", "sampleArray");
-    return await getDoc(docRef);
+    const collectionRef = collection(db, "tasks");
+    const que = query(collectionRef, orderBy("time"));
+    return await getDocs(que);
+  };
+  const deleteTasksFromFirebase = async (task) => {
+    const docRef = doc(db, "tasks", task.id);
+    await deleteDoc(docRef);
   };
   return (
     <FirebaseContext.Provider
-      value={{ storeTasksToFirebase, getTasksFromFirebase }}>
+      value={{
+        storeTasksToFirebase,
+        getTasksFromFirebase,
+        deleteTasksFromFirebase,
+      }}>
       {children}
     </FirebaseContext.Provider>
   );

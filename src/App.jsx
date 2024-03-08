@@ -18,27 +18,37 @@ function App() {
 
   //to store and get tasks from firestore
   useEffect(() => {
-    firebase.getTasksFromFirebase().then((res) => setTasks(res.data().tasks));
+    const firebaseTasks = [];
+    firebase.getTasksFromFirebase().then((res) => {
+      res.docs.map((task) => {
+        firebaseTasks.push(task.data());
+      });
+      setTasks(firebaseTasks);
+    });
     console.log("useEffect");
   }, [firebase]);
 
-  const storeTasks = (Tasks) => {
-    setTasks(Tasks);
-    firebase.storeTasksToFirebase(Tasks);
+  // const storeTasks = (Task) => {
+  //   setTasks(Tasks);
+  //   firebase.storeTasksToFirebase(Tasks);
+  // };
+
+  const setTasktoFirebase = (Task) => {
+    // .then((response) => console.log(response.data()));
   };
 
   //function to add, delete, update newTask to "task array"
   const addTask = (task) => {
     if (task.task == "") return alert("Please Enter a Task");
-    const newTasks = [...tasks];
-    newTasks.push(task);
-    storeTasks(newTasks);
+    firebase.storeTasksToFirebase(task);
+    setTasks([...tasks, task]);
     setNewTask({ task: "", complete: false });
   };
   const deleteTask = (index) => {
+    firebase.deleteTasksFromFirebase(tasks[index]);
     const newTasks = [...tasks];
     newTasks.splice(index, 1);
-    storeTasks(newTasks);
+    setTasks(newTasks);
   };
   const updateTask = (index) => {
     const newTasks = [...tasks];
@@ -46,7 +56,7 @@ function App() {
       task: newTasks[index].task,
       complete: !newTasks[index].complete,
     });
-    storeTasks(newTasks);
+    // storeTasks(newTasks);
   };
   return (
     <div className='App m-2'>
@@ -71,7 +81,7 @@ function App() {
             <ListGroup.Item
               variant={task.complete ? "success" : ""}
               key={index}
-              onClick={() => updateTask(index)}
+              // onClick={() => updateTask(index)}
               onDoubleClick={() => deleteTask(index)}>
               {task.task}
             </ListGroup.Item>
