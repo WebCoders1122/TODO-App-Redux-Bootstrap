@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 //bootstrap
 import { ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-//local storage library
-// import localforage from "localforage";
-import { useEffect } from "react";
 
 //firestore imports
 import { useFirebase } from "./context/Firebase.jsx";
@@ -19,9 +16,10 @@ function App() {
   //firebase veriables
   const firebase = useFirebase();
 
-  //to store and get tasks from local storage
+  //to store and get tasks from firestore
   useEffect(() => {
     firebase.getTasksFromFirebase().then((res) => setTasks(res.data().tasks));
+    console.log("useEffect");
   }, [firebase]);
 
   const storeTasks = (Tasks) => {

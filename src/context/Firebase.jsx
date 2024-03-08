@@ -48,3 +48,14 @@ export const FirebaseProvider = ({ children }) => {
     </FirebaseContext.Provider>
   );
 };
+
+//firebase hosting:
+//this is static hosting and stored files will be provided on request.
+
+// dynamic hosting: files will be created by server with some internal server code on your request. (example => php server)
+
+// step 1: install firebase tools => (user sudo install -g firebase-tools)
+// step 2: login firebase with command in your app=> firebase login
+// step 3: setup project with this command => firebase init / firebase init hosting
+// step 4: build your project and enter the folder name in public
+// step 5: deploy project and get url with this command => firebase deploy
