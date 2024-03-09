@@ -13,6 +13,7 @@ import {
   query,
   deleteDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 // firebase configuration
@@ -42,9 +43,28 @@ export const FirebaseProvider = ({ children }) => {
     return await setDoc(docRef, newTask);
   };
 
-  const getTasksFromFirebase = async (sortOption) => {
+  const getTasksFromFirebase = async (
+    sortOption,
+    search,
+    filter,
+    taskStatus
+  ) => {
     const collectionRef = collection(db, "tasks");
-    const que = query(collectionRef, orderBy(sortOption));
+    let que;
+    switch (filter) {
+      case 1:
+        que = query(collectionRef, orderBy(sortOption));
+        break;
+      case 2:
+        que = query(collectionRef, where("task", "==", search));
+        break;
+      case 3:
+        que = query(collectionRef, where("complete", "==", taskStatus));
+        break;
+      default:
+        que = query(collectionRef, orderBy(sortOption));
+        break;
+    }
     return await getDocs(que);
   };
   const deleteTasksFromFirebase = async (task) => {

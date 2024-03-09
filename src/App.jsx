@@ -14,7 +14,12 @@ function App() {
   //new task
   const [newTask, setNewTask] = useState({ task: "", complete: false });
   // to sort tasks
-  const [sortOption, setSortOption] = useState("complete");
+  const [sortOption, setSortOption] = useState("time");
+  // search
+  const [search, setSearch] = useState("");
+  const [taskStatus, setTaskStatus] = useState(false);
+  // to check which search query will be executed in firebase.getTasksFromFirebase()
+  const [filter, setFilter] = useState(1);
 
   //firebase veriables
   const firebase = useFirebase();
@@ -22,18 +27,37 @@ function App() {
   //to store and get tasks from firestore
   useEffect(() => {
     const firebaseTasks = [];
-    firebase.getTasksFromFirebase(sortOption).then((res) => {
-      res.docs.map((task) => {
-        firebaseTasks.push(task.data());
+    console.log(sortOption, search, filter, taskStatus);
+    firebase
+      .getTasksFromFirebase(sortOption, search, filter, taskStatus)
+      .then((res) => {
+        res.docs.map((task) => {
+          firebaseTasks.push(task.data());
+        });
+        setTasks(firebaseTasks);
       });
-      setTasks(firebaseTasks);
-    });
     console.log("useEffect");
-  }, [firebase, sortOption]);
+  }, [sortOption, filter, search, taskStatus]);
 
   // to change sortOption
   const changeSortOption = (newSortOption) => {
     setSortOption(newSortOption);
+    setFilter(1);
+  };
+  // handle search
+  const handleSearch = (search) => {
+    if (search == "") {
+      setSearch("");
+      return setFilter(1);
+    } else {
+      setSearch(search);
+      setFilter(2);
+    }
+  };
+  // handle task Status ie. completed or un completed
+  const handleTaskStatus = (newStatus) => {
+    setFilter(3);
+    setTaskStatus(newStatus);
   };
 
   //function to add, delete, update newTask to "task array"
@@ -58,10 +82,11 @@ function App() {
     });
     setTasks(newTasks);
   };
+
   return (
     <div className='App m-2'>
       <input
-        className='form-control'
+        className='form-control my-2'
         type='text'
         name='task'
         value={newTask.task}
@@ -75,7 +100,7 @@ function App() {
         onClick={() => addTask(newTask)}>
         Add Task
       </button>
-      <Dropdown className='m-2 '>
+      <Dropdown className='my-2 '>
         <Dropdown.Toggle
           variant='warning'
           id='dropdown-basic'>
@@ -83,16 +108,29 @@ function App() {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           <Dropdown.Item onClick={() => changeSortOption("task")}>
-            Name
+            Sort by Name
           </Dropdown.Item>
           <Dropdown.Item onClick={() => changeSortOption("time")}>
-            Time
+            Sort By Time
           </Dropdown.Item>
-          <Dropdown.Item onClick={() => changeSortOption("complete")}>
-            Complete/ Pending
+          <Dropdown.Item onClick={() => handleTaskStatus(true)}>
+            Completed Tasks
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => handleTaskStatus(false)}>
+            Pending Tasks
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
+      <div className='search my-2'>
+        <input
+          className='form-control'
+          type='text'
+          name='search'
+          value={search}
+          placeholder='Search Task Here'
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
       <ListGroup>
         {tasks.map((task, index) => {
           return (
