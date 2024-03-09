@@ -3,6 +3,7 @@ import "./App.css";
 //bootstrap
 import { ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Dropdown from "react-bootstrap/Dropdown";
 
 //firestore imports
 import { useFirebase } from "./context/Firebase.jsx";
@@ -12,6 +13,8 @@ function App() {
   const [tasks, setTasks] = useState([]);
   //new task
   const [newTask, setNewTask] = useState({ task: "", complete: false });
+  // to sort tasks
+  const [sortOption, setSortOption] = useState("complete");
 
   //firebase veriables
   const firebase = useFirebase();
@@ -19,22 +22,18 @@ function App() {
   //to store and get tasks from firestore
   useEffect(() => {
     const firebaseTasks = [];
-    firebase.getTasksFromFirebase().then((res) => {
+    firebase.getTasksFromFirebase(sortOption).then((res) => {
       res.docs.map((task) => {
         firebaseTasks.push(task.data());
       });
       setTasks(firebaseTasks);
     });
     console.log("useEffect");
-  }, [firebase]);
+  }, [firebase, sortOption]);
 
-  // const storeTasks = (Task) => {
-  //   setTasks(Tasks);
-  //   firebase.storeTasksToFirebase(Tasks);
-  // };
-
-  const setTasktoFirebase = (Task) => {
-    // .then((response) => console.log(response.data()));
+  // to change sortOption
+  const changeSortOption = (newSortOption) => {
+    setSortOption(newSortOption);
   };
 
   //function to add, delete, update newTask to "task array"
@@ -76,6 +75,24 @@ function App() {
         onClick={() => addTask(newTask)}>
         Add Task
       </button>
+      <Dropdown className='m-2 '>
+        <Dropdown.Toggle
+          variant='warning'
+          id='dropdown-basic'>
+          Sort Tasks By
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.Item onClick={() => changeSortOption("task")}>
+            Name
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => changeSortOption("time")}>
+            Time
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => changeSortOption("complete")}>
+            Complete/ Pending
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
       <ListGroup>
         {tasks.map((task, index) => {
           return (

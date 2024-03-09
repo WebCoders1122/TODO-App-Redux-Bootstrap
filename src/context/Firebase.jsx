@@ -42,9 +42,9 @@ export const FirebaseProvider = ({ children }) => {
     return await setDoc(docRef, newTask);
   };
 
-  const getTasksFromFirebase = async () => {
+  const getTasksFromFirebase = async (sortOption) => {
     const collectionRef = collection(db, "tasks");
-    const que = query(collectionRef, orderBy("time"));
+    const que = query(collectionRef, orderBy(sortOption));
     return await getDocs(que);
   };
   const deleteTasksFromFirebase = async (task) => {
