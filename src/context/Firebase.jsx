@@ -10,10 +10,9 @@ import {
   setDoc,
   getDocs,
   orderBy,
-  limit,
   query,
-  where,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 // firebase configuration
@@ -52,12 +51,17 @@ export const FirebaseProvider = ({ children }) => {
     const docRef = doc(db, "tasks", task.id);
     await deleteDoc(docRef);
   };
+  const UpdateTasksInFirebase = async (task) => {
+    const docRef = doc(db, "tasks", task.id);
+    await updateDoc(docRef, { ...task, complete: !task.complete });
+  };
   return (
     <FirebaseContext.Provider
       value={{
         storeTasksToFirebase,
         getTasksFromFirebase,
         deleteTasksFromFirebase,
+        UpdateTasksInFirebase,
       }}>
       {children}
     </FirebaseContext.Provider>

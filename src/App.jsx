@@ -51,12 +51,13 @@ function App() {
     setTasks(newTasks);
   };
   const updateTask = (index) => {
+    firebase.UpdateTasksInFirebase(tasks[index]);
     const newTasks = [...tasks];
     newTasks.splice(index, 1, {
-      task: newTasks[index].task,
+      ...newTasks[index],
       complete: !newTasks[index].complete,
     });
-    // storeTasks(newTasks);
+    setTasks(newTasks);
   };
   return (
     <div className='App m-2'>
@@ -81,7 +82,7 @@ function App() {
             <ListGroup.Item
               variant={task.complete ? "success" : ""}
               key={index}
-              // onClick={() => updateTask(index)}
+              onClick={() => updateTask(index)}
               onDoubleClick={() => deleteTask(index)}>
               {task.task}
             </ListGroup.Item>
