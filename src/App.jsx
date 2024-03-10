@@ -133,12 +133,11 @@ function App({ tasks }) {
     handleSearch,
     search,
   };
-  const TaskListProps = { updateTask, deleteTask };
   const NavigationProps = { previousPage, nextPage, currentPage };
   return (
     <div className='App m-2'>
       <Controls {...controlProps} />
-      <TaskList {...TaskListProps} />
+      <TaskList />
       <Navigation {...NavigationProps} />
     </div>
   );
