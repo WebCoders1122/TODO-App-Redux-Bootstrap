@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-//bootstrap
-import { ListGroup } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Dropdown from "react-bootstrap/Dropdown";
-import Pagination from "react-bootstrap/Pagination";
-
 //firestore imports
 import { useFirebase } from "./context/Firebase.jsx";
+//components
+import Controls from "./components/Controls.jsx";
+import TaskList from "./components/TaskList.jsx";
+import Navigation from "./components/Nav.jsx";
 
-function App() {
+//redux
+import store from "./app/store.js";
+import { connect } from "react-redux";
+
+//redux
+function App({ tasks }) {
+  // const tasks = store.getState().tasks;
+  const setTasks = (task) => {
+    store.dispatch({ type: "SET_LIST", payload: task });
+  };
   //total task array
-  const [tasks, setTasks] = useState([]);
   //new task
   const [newTask, setNewTask] = useState({ task: "", complete: false });
   // to sort tasks
@@ -21,7 +27,6 @@ function App() {
   const [taskStatus, setTaskStatus] = useState(false);
   // to check which search query will be executed in firebase.getTasksFromFirebase()
   const [filter, setFilter] = useState(1);
-
   //for pagination
   const [firstDoc, setFirstDoc] = useState(null); // this is 1st visible document
   const [lastDoc, setLastDoc] = useState(null); // this is last visible document
@@ -51,11 +56,9 @@ function App() {
           allDocuments.push(task);
         });
         setFirstDoc(allDocuments[0]);
-        console.log(allDocuments.length);
         setLastDoc(allDocuments[allDocuments.length - 1]);
         setTasks(firebaseTasks);
       });
-    // console.log("useEffect");
   }, [sortOption, filter, search, taskStatus, currentPage]);
 
   // to change sortOption
@@ -109,11 +112,10 @@ function App() {
   //for pagination
   const previousPage = () => {
     setFilter(5);
-    if (currentPage > 0) {
+    if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-
   const nextPage = () => {
     setFilter(4);
     if (tasks.length == pageSize) {
@@ -121,82 +123,29 @@ function App() {
     }
   };
 
+  // props of all compenets
+  const controlProps = {
+    newTask,
+    setNewTask,
+    addTask,
+    changeSortOption,
+    handleTaskStatus,
+    handleSearch,
+    search,
+  };
+  const TaskListProps = { updateTask, deleteTask };
+  const NavigationProps = { previousPage, nextPage, currentPage };
   return (
     <div className='App m-2'>
-      <input
-        className='form-control my-2'
-        type='text'
-        name='task'
-        value={newTask.task}
-        placeholder='Enter New Task Here'
-        onChange={(e) =>
-          setNewTask({ ...newTask, [e.target.name]: e.target.value })
-        }
-      />
-      <button
-        className='btn btn-success w-100'
-        onClick={() => addTask(newTask)}>
-        Add Task
-      </button>
-      <Dropdown className='my-2 '>
-        <Dropdown.Toggle
-          variant='warning'
-          id='dropdown-basic'>
-          Sort Tasks By
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => changeSortOption("task")}>
-            Sort by Name
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => changeSortOption("time")}>
-            Sort By Time
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => handleTaskStatus(true)}>
-            Completed Tasks
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => handleTaskStatus(false)}>
-            Pending Tasks
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-      <div className='search my-2'>
-        <input
-          className='form-control'
-          type='text'
-          name='search'
-          value={search}
-          placeholder='Search Task Here'
-          onChange={(e) => handleSearch(e.target.value)}
-        />
-      </div>
-      <ListGroup>
-        {tasks.map((task, index) => {
-          return (
-            <ListGroup.Item
-              variant={task.complete ? "success" : ""}
-              key={index}
-              onClick={() => updateTask(index)}
-              onDoubleClick={() => deleteTask(index)}>
-              {task.task}
-            </ListGroup.Item>
-          );
-        })}
-      </ListGroup>
-      <Pagination>
-        <Pagination.First />
-        <Pagination.Prev />
-        <Pagination.Item onClick={() => previousPage()}>
-          Previous
-        </Pagination.Item>
-        <Pagination.Item>{currentPage}</Pagination.Item>
-        <Pagination.Item onClick={() => nextPage()}>Next</Pagination.Item>
-        {/* <Pagination.Item active>{12}</Pagination.Item> */}
-        {/* <Pagination.Item disabled>{14}</Pagination.Item>  */}
-        <Pagination.Next />
-        <Pagination.Last />
-      </Pagination>
+      <Controls {...controlProps} />
+      <TaskList {...TaskListProps} />
+      <Navigation {...NavigationProps} />
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return { tasks: state.tasks };
+};
+
+export default connect(mapStateToProps)(App);
