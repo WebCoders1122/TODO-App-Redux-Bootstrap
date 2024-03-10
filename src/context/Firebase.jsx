@@ -14,6 +14,10 @@ import {
   deleteDoc,
   updateDoc,
   where,
+  limit,
+  endBefore,
+  startAfter,
+  limitToLast,
 } from "firebase/firestore";
 
 // firebase configuration
@@ -47,19 +51,38 @@ export const FirebaseProvider = ({ children }) => {
     sortOption,
     search,
     filter,
-    taskStatus
+    taskStatus,
+    lastDoc,
+    firstDoc,
+    pageSize
   ) => {
     const collectionRef = collection(db, "tasks");
     let que;
     switch (filter) {
       case 1:
-        que = query(collectionRef, orderBy(sortOption));
+        que = query(collectionRef, orderBy(sortOption), limit(pageSize));
         break;
       case 2:
         que = query(collectionRef, where("task", "==", search));
         break;
       case 3:
         que = query(collectionRef, where("complete", "==", taskStatus));
+        break;
+      case 4:
+        que = query(
+          collectionRef,
+          orderBy(sortOption),
+          startAfter(lastDoc),
+          limit(pageSize)
+        );
+        break;
+      case 5:
+        que = query(
+          collectionRef,
+          orderBy(sortOption),
+          endBefore(firstDoc),
+          limitToLast(pageSize)
+        );
         break;
       default:
         que = query(collectionRef, orderBy(sortOption));

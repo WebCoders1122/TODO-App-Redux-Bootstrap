@@ -4,6 +4,7 @@ import "./App.css";
 import { ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Dropdown from "react-bootstrap/Dropdown";
+import Pagination from "react-bootstrap/Pagination";
 
 //firestore imports
 import { useFirebase } from "./context/Firebase.jsx";
@@ -21,23 +22,41 @@ function App() {
   // to check which search query will be executed in firebase.getTasksFromFirebase()
   const [filter, setFilter] = useState(1);
 
+  //for pagination
+  const [firstDoc, setFirstDoc] = useState(null); // this is 1st visible document
+  const [lastDoc, setLastDoc] = useState(null); // this is last visible document
+  const [currentPage, setCurrentPage] = useState(1); //to trigger useEffect on page change
+  const [pageSize, setPageSize] = useState(8);
+
   //firebase veriables
   const firebase = useFirebase();
 
   //to store and get tasks from firestore
   useEffect(() => {
     const firebaseTasks = [];
-    console.log(sortOption, search, filter, taskStatus);
+    const allDocuments = []; // these are all documents fetched for current page without extracting data
     firebase
-      .getTasksFromFirebase(sortOption, search, filter, taskStatus)
+      .getTasksFromFirebase(
+        sortOption,
+        search,
+        filter,
+        taskStatus,
+        lastDoc,
+        firstDoc,
+        pageSize
+      )
       .then((res) => {
         res.docs.map((task) => {
           firebaseTasks.push(task.data());
+          allDocuments.push(task);
         });
+        setFirstDoc(allDocuments[0]);
+        console.log(allDocuments.length);
+        setLastDoc(allDocuments[allDocuments.length - 1]);
         setTasks(firebaseTasks);
       });
-    console.log("useEffect");
-  }, [sortOption, filter, search, taskStatus]);
+    // console.log("useEffect");
+  }, [sortOption, filter, search, taskStatus, currentPage]);
 
   // to change sortOption
   const changeSortOption = (newSortOption) => {
@@ -64,7 +83,11 @@ function App() {
   const addTask = (task) => {
     if (task.task == "") return alert("Please Enter a Task");
     firebase.storeTasksToFirebase(task);
-    setTasks([...tasks, task]);
+    if (tasks.length < pageSize) {
+      setTasks([...tasks, task]);
+    } else {
+      alert("Task added in the last Page");
+    }
     setNewTask({ task: "", complete: false });
   };
   const deleteTask = (index) => {
@@ -81,6 +104,21 @@ function App() {
       complete: !newTasks[index].complete,
     });
     setTasks(newTasks);
+  };
+
+  //for pagination
+  const previousPage = () => {
+    setFilter(5);
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const nextPage = () => {
+    setFilter(4);
+    if (tasks.length == pageSize) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   return (
@@ -144,6 +182,19 @@ function App() {
           );
         })}
       </ListGroup>
+      <Pagination>
+        <Pagination.First />
+        <Pagination.Prev />
+        <Pagination.Item onClick={() => previousPage()}>
+          Previous
+        </Pagination.Item>
+        <Pagination.Item>{currentPage}</Pagination.Item>
+        <Pagination.Item onClick={() => nextPage()}>Next</Pagination.Item>
+        {/* <Pagination.Item active>{12}</Pagination.Item> */}
+        {/* <Pagination.Item disabled>{14}</Pagination.Item>  */}
+        <Pagination.Next />
+        <Pagination.Last />
+      </Pagination>
     </div>
   );
 }
