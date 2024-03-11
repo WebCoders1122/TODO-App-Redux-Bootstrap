@@ -1,5 +1,5 @@
 //bootstrap
-import { Dropdown } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 //firebase context
 import { useFirebase } from "../../context/Firebase";
 
@@ -36,27 +36,6 @@ export const ControlsUI = ({
         onClick={() => addTask(newTask, tasks, firebase)}>
         Add Task
       </button>
-      <Dropdown className='my-2 '>
-        <Dropdown.Toggle
-          variant='warning'
-          id='dropdown-basic'>
-          Sort Tasks By
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => changeSortOption("task")}>
-            Sort by Name
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => changeSortOption("time")}>
-            Sort By Time
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => handleTaskStatus(true)}>
-            Completed Tasks
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => handleTaskStatus(false)}>
-            Pending Tasks
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
       <div className='search my-2'>
         <input
           className='form-control'
@@ -66,6 +45,30 @@ export const ControlsUI = ({
           placeholder='Search Task Here'
           onChange={(e) => handleSearch(e.target.value, sortOption)}
         />
+      </div>
+
+      <div className='actions d-flex gap-2 justify-content-center my-2'>
+        <Button
+          variant='warning'
+          onClick={() => changeSortOption("task")}>
+          Sort by Name
+        </Button>
+
+        <Button
+          variant='warning'
+          onClick={() => changeSortOption("time")}>
+          Sort By Time
+        </Button>
+        <Button
+          variant='success'
+          onClick={() => handleTaskStatus(true)}>
+          Completed Tasks
+        </Button>
+        <Button
+          variant='danger'
+          onClick={() => handleTaskStatus(false)}>
+          Pending Tasks
+        </Button>
       </div>
     </>
   );

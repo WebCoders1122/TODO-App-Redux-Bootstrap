@@ -9,7 +9,11 @@ export const NavigationUI = ({ previousPage, nextPage, currentPage }) => {
       {/* <Pagination.First /> */}
       {/* <Pagination.Prev /> */}
       <Pagination.Item onClick={() => previousPage()}>Previous</Pagination.Item>
-      <Pagination.Item>{currentPage}</Pagination.Item>
+      <Pagination.Item
+        className='page-link-success '
+        active>
+        {currentPage}
+      </Pagination.Item>
       <Pagination.Item onClick={() => nextPage()}>Next</Pagination.Item>
       {/* <Pagination.Item active>{12}</Pagination.Item> */}
       {/* <Pagination.Item disabled>{14}</Pagination.Item>  */}
