@@ -1,27 +1,6 @@
 import React from "react";
-import { ListGroup } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { connect } from "react-redux";
-import { useFirebase } from "../context/Firebase";
-
-const TaskList = ({ tasks, updateTask, deleteTask }) => {
-  const firebase = useFirebase();
-  return (
-    <ListGroup>
-      {tasks.map((task, index) => {
-        return (
-          <ListGroup.Item
-            variant={task.complete ? "success" : ""}
-            key={index}
-            onClick={() => updateTask(index, tasks, firebase)}
-            onDoubleClick={() => deleteTask(index, tasks, firebase)}>
-            {task.task}
-          </ListGroup.Item>
-        );
-      })}
-    </ListGroup>
-  );
-};
+import { TaskListUI } from "./TaskListUI";
 
 const deleteTask = (index, tasks, firebase, dispatch) => {
   firebase.deleteTasksFromFirebase(tasks[index]);
@@ -54,4 +33,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaskList);
+export default connect(mapStateToProps, mapDispatchToProps)(TaskListUI);

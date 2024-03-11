@@ -44,6 +44,11 @@ export const FirebaseProvider = ({ children }) => {
   const storeTasksToFirebase = async (task) => {
     const docRef = doc(collection(db, "tasks"));
     const newTask = { ...task, id: docRef.id, time: new Date() };
+    // return new Promise((resolve) => {
+    //   setDoc(docRef, newTask).then(() => {
+    //     resolve(newTask, docRef);
+    //   });
+    // });
     return await setDoc(docRef, newTask);
   };
 

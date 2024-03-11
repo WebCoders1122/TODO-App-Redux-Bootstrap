@@ -1,4 +1,5 @@
 import { createStore } from "@reduxjs/toolkit";
+import { pageSize } from "../constants";
 
 const initialState = {
   tasks: [],
@@ -7,8 +8,9 @@ const initialState = {
   fitler: 1,
   taskStatus: false,
   search: "",
-  pageSize: 8,
   currentPage: 1,
+  firstDoc: null,
+  lastDoc: null,
 };
 const todoReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -16,7 +18,7 @@ const todoReducer = (state = initialState, action) => {
       return { ...state, tasks: action.payload };
       break;
     case "ADD":
-      return { ...state, tasks: [...tasks, action.payload], newTask };
+      return { ...state, tasks: [...state.tasks, action.payload] };
       break;
     case "SET_TASK":
       return { ...state, newTask: action.payload };
@@ -31,14 +33,24 @@ const todoReducer = (state = initialState, action) => {
       return { ...state, taskStatus: action.payload, filter: 3 };
       break;
     case "NEXT":
-      if (state.tasks.length == state.pageSize) {
+      if (state.tasks.length == pageSize) {
         return { ...state, currentPage: state.currentPage + 1, filter: 4 };
+      } else {
+        return state;
       }
       break;
     case "PREV":
       if (state.currentPage > 1) {
         return { ...state, currentPage: state.currentPage - 1, filter: 5 };
+      } else {
+        return state;
       }
+      break;
+    case "SET_FIRST":
+      return { ...state, firstDoc: action.payload };
+      break;
+    case "SET_LAST":
+      return { ...state, lastDoc: action.payload };
       break;
     default:
       return state;
