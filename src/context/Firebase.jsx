@@ -63,10 +63,18 @@ export const FirebaseProvider = ({ children }) => {
         que = query(collectionRef, orderBy(sortOption), limit(pageSize));
         break;
       case 2:
-        que = query(collectionRef, where("task", "==", search));
+        que = query(
+          collectionRef,
+          where("task", "==", search),
+          limit(pageSize)
+        );
         break;
       case 3:
-        que = query(collectionRef, where("complete", "==", taskStatus));
+        que = query(
+          collectionRef,
+          where("complete", "==", taskStatus),
+          limit(pageSize)
+        );
         break;
       case 4:
         que = query(
@@ -85,7 +93,7 @@ export const FirebaseProvider = ({ children }) => {
         );
         break;
       default:
-        que = query(collectionRef, orderBy(sortOption));
+        que = query(collectionRef, orderBy(sortOption), limit(pageSize));
         break;
     }
     return await getDocs(que);
